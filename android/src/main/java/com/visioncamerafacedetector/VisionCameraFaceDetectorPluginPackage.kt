@@ -4,9 +4,16 @@ import com.facebook.react.ReactPackage
 import com.facebook.react.bridge.NativeModule
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.uimanager.ViewManager
+import com.mrousavy.camera.frameprocessor.FrameProcessorPluginRegistry
+import com.visioncamerafacedetector.visioncamerafacedetector.VisionCameraFaceDetectorPlugin
 
+class VisionCameraFaceDetectorPluginPackage : ReactPackage {
+  init {
+    FrameProcessorPluginRegistry.addFrameProcessorPlugin("scanFace") { options ->
+      VisionCameraFaceDetectorPlugin()
+    }
+  }
 
-class VisionCameraFaceDetectorPackage : ReactPackage {
   override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> {
     return listOf(VisionCameraFaceDetectorModule(reactContext))
   }
