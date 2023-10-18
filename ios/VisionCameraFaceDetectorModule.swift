@@ -1,4 +1,4 @@
-import Vision
+import VisionCamera
 import MLKitFaceDetection
 import MLKitVision
 import CoreML

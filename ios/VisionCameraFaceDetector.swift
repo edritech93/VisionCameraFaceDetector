@@ -1,4 +1,4 @@
-import Vision
+import VisionCamera
 import MLKitFaceDetection
 import MLKitVision
 import CoreML
@@ -102,14 +102,14 @@ public class VisionCameraFaceDetectorPlugin: FrameProcessorPlugin {
         super.init()
     }
     
-    @objc override public func callback(_ frame: Frame, withArguments arguments: [AnyHashable : Any]?) -> Any {
+    @objc override public func callback(_ frame: Frame, withArguments arguments: [AnyHashable : Any]?) -> Any? {
         let image = VisionImage(buffer: frame.buffer)
         image.orientation = .up
         
         var faceAttributes: [Any] = []
         
         do {
-            let faces: [Face] =  try faceDetector.results(in: image)
+            let faces: [Face] =  try VisionCameraFaceDetectorPlugin.faceDetector.results(in: image)
             if (!faces.isEmpty){
                 for face in faces {
                     let imageCrop = getImageFaceFromBuffer(from: frame.buffer, rectImage: face.frame)
@@ -124,14 +124,15 @@ public class VisionCameraFaceDetectorPlugin: FrameProcessorPlugin {
                     map["leftEyeOpenProbability"] = face.leftEyeOpenProbability
                     map["rightEyeOpenProbability"] = face.rightEyeOpenProbability
                     map["smilingProbability"] = face.smilingProbability
-                    map["bounds"] = processBoundingBox(from: face)
-                    //                    map["contours"] = processContours(from: face)
+                    map["bounds"] = VisionCameraFaceDetectorPlugin.processBoundingBox(from: face)
+                    map["contours"] = VisionCameraFaceDetectorPlugin.processContours(from: face)
                     map["imageResult"] = imageResult
                     
                     faceAttributes.append(map)
                 }
             }
-        } catch _ {
+        } catch {
+            print("error: \(error)")
             return nil
         }
         return faceAttributes

@@ -8,8 +8,8 @@ import {
   useCameraFormat,
   useCameraDevice,
 } from 'react-native-vision-camera';
-// import { runOnJS } from 'react-native-reanimated';
 import { scanFaces } from 'vision-camera-face-detector';
+import { Worklets } from 'react-native-worklets-core';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Platform.select<number>({
@@ -24,6 +24,9 @@ const targetFps = 30;
 export default function App() {
   const [hasPermission, setHasPermission] = useState(false);
   // const [faces, setFaces] = useState<FaceType[]>();
+  const [faces, setFaces] = useState<any>(null);
+  const setFacesJS = Worklets.createRunInJsFn(setFaces);
+
   const camera = useRef<Camera>(null);
 
   const device = useCameraDevice('front', {
@@ -50,9 +53,9 @@ export default function App() {
     _getPermission();
   }, []);
 
-  // useEffect(() => {
-  //   console.log('faces => ', faces);
-  // }, [faces]);
+  useEffect(() => {
+    console.log('faces => ', faces);
+  }, [faces]);
 
   const onError = useCallback((error: CameraRuntimeError) => {
     console.error(error);
@@ -64,12 +67,8 @@ export default function App() {
 
   const frameProcessor = useFrameProcessor((frame: Frame) => {
     'worklet';
-    // console.log(
-    //   `${frame.timestamp}: ${frame.width}x${frame.height} ${frame.pixelFormat} Frame (${frame.orientation})`
-    // );
     const scannedFaces = scanFaces(frame);
-    console.log('scannedFaces => ', scannedFaces);
-    // runOnJS(setFaces)(scannedFaces);
+    setFacesJS(scannedFaces);
   }, []);
 
   if (device != null && format != null && hasPermission) {
